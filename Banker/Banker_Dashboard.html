@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Banker Dashboard - Support Tickets</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+      :root {
+        --primary: #007bff;
+        --secondary: #ffffff;
+        --accent: #ff4081;
+        --background: #007bff;
+        --card-bg: #ffffff;
+        --text: #007bff;
+        --shadow: rgba(0, 123, 255, 0.4);
+        --highlight: #ffffff;
+      }
+
+      body {
+        background: linear-gradient(
+          135deg,
+          var(--background),
+          var(--secondary)
+        );
+        min-height: 100vh;
+        font-family: "Poppins", sans-serif;
+        color: var(--text);
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .navbar {
+        background: var(--card-bg);
+        border-bottom: 3px solid var(--primary);
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 6px 20px var(--shadow);
+        border-radius: 0 0 15px 15px;
+        position: relative;
+      }
+
+      .navbar .header-container {
+        display: flex;
+        align-items: center;
+      }
+
+      .navbar .logo {
+        width: 90px;
+        /* Adjust size as needed */
+        height: auto;
+        margin-right: 15px;
+        /* Space between logo and heading */
+      }
+
+      .navbar h3 {
+        color: var(--primary);
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.8rem;
+        letter-spacing: 1px;
+      }
+
+      .navbar .profile {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      .navbar .profile .notification {
+        color: var(--primary);
+        font-size: 1.5rem;
+        margin-right: 15px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar .profile .notification:hover {
+        transform: scale(1.2);
+      }
+
+      .navbar .profile img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 3px solid var(--primary);
+        margin-left: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .navbar .profile img:hover {
+        transform: scale(1.15);
+        box-shadow: 0 0 15px var(--shadow);
+      }
+
+      .navbar .profile span {
+        color: var(--text);
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-left: 15px;
+      }
+
+      .ticket-table {
+        background: var(--card-bg);
+        border: 2px solid var(--primary);
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 40px;
+        box-shadow: 0 8px 25px var(--shadow);
+      }
+
+      .table {
+        color: var(--text);
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        background-color: transparent;
+      }
+
+      .table th {
+        color: var(--secondary);
+        font-weight: 600;
+        background: var(--primary);
+        padding: 15px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+      }
+
+      .table td {
+        background-color: transparent;
+        vertical-align: middle;
+        padding: 15px;
+        border-bottom: 1px solid rgba(0, 123, 255, 0.2);
+        color: #ffffff;
+        font-weight: bold;
+      }
+
+      .high-priority-row {
+        background-color: #ff4d4d !important;
+      }
+
+      .medium-priority-row {
+        background-color: #ffa64d !important;
+      }
+
+      .low-priority-row {
+        background-color: #73735e !important;
+      }
+
+      .resolved-row {
+        background-color: #28a745 !important;
+        color: #ffffff !important;
+      }
+
+      .selected-row {
+        background-color: #cce5ff !important;
+        color: #000000 !important;
+      }
+
+      .attachment-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .attachment-link:hover {
+        color: #0056b3;
+        text-decoration: underline;
+      }
+
+      h4 {
+        color: var(--primary);
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 700;
+        font-size: 1.6rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        animation: glow 2s infinite alternate;
+      }
+
+      .search-filter-container {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .search-input {
+        background: var(--card-bg);
+        border: 2px solid var(--primary);
+        color: var(--text);
+        padding: 8px;
+        border-radius: 8px;
+        width: 200px;
+      }
+
+      .filter-select {
+        background: var(--card-bg);
+        border: 2px solid var(--primary);
+        color: var(--text);
+        padding: 8px;
+        border-radius: 8px;
+        width: 150px;
+      }
+
+      .btn-custom {
+        background: var(--primary);
+        color: var(--secondary);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-custom:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+      }
+
+      .modal-content {
+        background: var(--card-bg);
+        border: 2px solid var(--primary);
+        border-radius: 15px;
+      }
+
+      .modal-header {
+        background: var(--primary);
+        color: var(--secondary);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 5px var(--primary);
+        }
+
+        to {
+          text-shadow: 0 0 15px var(--primary), 0 0 25px var(--shadow);
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          padding: 20px;
+        }
+
+        .navbar .header-container {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .navbar .logo {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+
+        .navbar .profile {
+          flex-direction: column;
+          align-items: flex-end;
+        }
+
+        .navbar .profile .notification {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+
+        .navbar .profile img {
+          margin-left: 0;
+          margin-bottom: 10px;
+        }
+
+        .navbar .profile span {
+          margin-left: 0;
+        }
+
+        .search-filter-container {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <div class="navbar fade-in">
+        <div class="header-container">
+          <img src="../src/logo (2).png" alt="Company Logo" class="logo" />
+          <h3>Banker Dashboard - Support Tickets</h3>
+        </div>
+        <div class="profile">
+          <i class="fas fa-bell notification" title="Notifications"></i>
+          <span id="profileName">Banker</span>
+        </div>
+      </div>
+
+      <div class="ticket-table fade-in">
+        <h4>All Support Tickets</h4>
+        <div class="search-filter-container">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search by ID or Email"
+          />
+          <select id="priorityFilter" class="filter-select">
+            <option value="">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <select id="issueTypeFilter" class="filter-select">
+            <option value="">All Issue Types</option>
+          </select>
+          <select id="statusFilter" class="filter-select">
+            <option value="">All Statuses</option>
+            <option value="Under Working">Unresolved</option>
+            <option value="Request Resolved">Resolved</option>
+          </select>
+          <button class="btn btn-custom" id="selectAllBtn">Select All</button>
+          <button class="btn btn-custom" id="sendSelectedBtn">
+            Send to Selected
+          </button>
+          <button class="btn btn-custom" onclick="downloadExcel()">
+            Download Excel
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Issue Type</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Priority</th>
+                <th>Branch Code</th>
+                <th>User Code</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Attachment</th>
+                <th>Submission Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ticketTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="announcementModal"
+      tabindex="-1"
+      aria-labelledby="announcementModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="announcementModalLabel">
+              Send Announcement
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="announcementForm">
+              <div class="mb-3">
+                <label for="announcementSubject" class="form-label"
+                  >Subject</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="announcementSubject"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="announcementMessage" class="form-label"
+                  >Message</label
+                >
+                <textarea
+                  class="form-control"
+                  id="announcementMessage"
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="sendAnnouncementBtn"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let allTickets = [];
+      let selectedEmails = [];
+
+      function loadDashboard() {
+        $.ajax({
+          url: "https://banking-desk.vercel.app/api/tickets",
+          method: "GET",
+          success: function (tickets) {
+            allTickets = tickets;
+            renderTickets(tickets);
+            populateIssueTypeFilter(tickets);
+          },
+          error: function (xhr) {
+            console.error("Error loading tickets:", xhr.responseJSON);
+            alert(
+              "Failed to load tickets: " +
+                (xhr.responseJSON?.error || "Unknown error")
+            );
+          },
+        });
+      }
+
+      function populateIssueTypeFilter(tickets) {
+        const issueTypeFilter = $("#issueTypeFilter");
+        const issueTypes = [
+          ...new Set(tickets.map((ticket) => ticket.issue_type)),
+        ].sort();
+        issueTypeFilter
+          .empty()
+          .append('<option value="">All Issue Types</option>');
+        issueTypes.forEach((type) => {
+          issueTypeFilter.append(`<option value="${type}">${type}</option>`);
+        });
+      }
+
+      function renderTickets(tickets) {
+        const tbody = $("#ticketTableBody");
+        tbody.empty();
+        tickets.forEach((ticket) => {
+          const priorityClass =
+            ticket.status === "Request Resolved"
+              ? "resolved-row"
+              : {
+                  high: "high-priority-row",
+                  medium: "medium-priority-row",
+                  low: "low-priority-row",
+                }[ticket.priority.toLowerCase()] || "";
+          const isSelected = selectedEmails.includes(ticket.email)
+            ? "selected-row"
+            : "";
+          const attachmentLink = ticket.attachment1
+            ? `<a href="https://banking-desk.vercel.app/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>`
+            : "None";
+          tbody.append(`
+                    <tr data-ticket-id="${ticket.id}" data-email="${
+            ticket.email
+          }" class="${priorityClass} ${isSelected}">
+                        <td>${ticket.id}</td>
+                        <td>${ticket.issue_type}</td>
+                        <td>${ticket.name}</td>
+                        <td>${ticket.email}</td>
+                        <td>${ticket.priority}</td>
+                        <td>${ticket.branchcode}</td>
+                        <td>${ticket.user_code}</td>
+                        <td>${ticket.subject}</td>
+                        <td>${ticket.message}</td>
+                        <td>${attachmentLink}</td>
+                        <td>${new Date(ticket.datetime).toLocaleString()}</td>
+                        <td>${ticket.status || "Under Working"}</td>
+                    </tr>
+                `);
+        });
+
+        $("tr[data-ticket-id]")
+          .off("click")
+          .on("click", function (e) {
+            if ($(e.target).is("a")) return;
+            $(this).toggleClass("selected-row");
+            const email = $(this).data("email");
+            if ($(this).hasClass("selected-row")) {
+              if (!selectedEmails.includes(email)) selectedEmails.push(email);
+            } else {
+              selectedEmails = selectedEmails.filter((e) => e !== email);
+            }
+          });
+      }
+
+      function filterTickets() {
+        const searchTerm = $("#searchInput").val().toLowerCase();
+        const priorityFilter = $("#priorityFilter").val().toLowerCase();
+        const issueTypeFilter = $("#issueTypeFilter").val();
+        const statusFilter = $("#statusFilter").val();
+
+        const filteredTickets = allTickets.filter((ticket) => {
+          const matchesSearch =
+            ticket.id.toString().includes(searchTerm) ||
+            ticket.email.toLowerCase().includes(searchTerm);
+          const matchesPriority =
+            !priorityFilter || ticket.priority.toLowerCase() === priorityFilter;
+          const matchesIssueType =
+            !issueTypeFilter || ticket.issue_type === issueTypeFilter;
+          const matchesStatus = !statusFilter || ticket.status === statusFilter;
+          return (
+            matchesSearch &&
+            matchesPriority &&
+            matchesIssueType &&
+            matchesStatus
+          );
+        });
+        renderTickets(filteredTickets);
+      }
+
+      function downloadExcel() {
+        const data = allTickets.map((ticket) => ({
+          ID: ticket.id,
+          "Issue Type": ticket.issue_type,
+          Name: ticket.name,
+          Email: ticket.email,
+          Priority: ticket.priority,
+          "Branch Code": ticket.branchcode,
+          "User Code": ticket.user_code,
+          Subject: ticket.subject,
+          Message: ticket.message,
+          Attachment: ticket.attachment1 || "None",
+          "Submission Date": new Date(ticket.datetime).toLocaleString(),
+          Status: ticket.status || "Under Working",
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Support Tickets");
+        XLSX.writeFile(wb, "Support_Tickets.xlsx");
+      }
+
+      function showAnnouncementModal() {
+        if (selectedEmails.length === 0) {
+          alert("Please select at least one ticket.");
+          return;
+        }
+        $("#announcementModal").modal("show");
+      }
+
+      function sendAnnouncement() {
+        const subject = $("#announcementSubject").val().trim();
+        const message = $("#announcementMessage").val().trim();
+        if (!subject || !message) {
+          alert("Please fill in both subject and message.");
+          return;
+        }
+
+        $.ajax({
+          url: "https://banking-desk.vercel.app/api/send-announcement",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ emails: selectedEmails, subject, message }),
+          success: function (response) {
+            alert(response.message);
+            $("#announcementModal").modal("hide");
+            $("#announcementForm")[0].reset();
+            selectedEmails = [];
+            $("tr").removeClass("selected-row");
+            loadDashboard();
+          },
+          error: function (xhr) {
+            alert(
+              "Error sending announcement: " +
+                (xhr.responseJSON?.message || "Unknown error")
+            );
+          },
+        });
+      }
+
+      $(document).ready(function () {
+        loadDashboard();
+
+        $(".notification").click(function () {
+          alert("Notifications feature coming soon!");
+        });
+
+        $("#searchInput, #priorityFilter, #issueTypeFilter, #statusFilter").on(
+          "input change",
+          filterTickets
+        );
+
+        $("#selectAllBtn").click(function () {
+          const visibleRows = $("tr[data-ticket-id]:visible");
+          visibleRows.addClass("selected-row");
+          selectedEmails = [
+            ...new Set(visibleRows.map((_, row) => $(row).data("email")).get()),
+          ];
+        });
+
+        $("#sendSelectedBtn").click(showAnnouncementModal);
+
+        $("#sendAnnouncementBtn").click(sendAnnouncement);
+
+        const bankerName = localStorage.getItem("bankerName") || "Banker";
+        const bankerPhoto =
+          localStorage.getItem("bankerPhoto") ||
+          "http://localhost:3000/uploads/default.png";
+        $("#profileName").text(bankerName);
+        $("#profilePhoto").attr("src", bankerPhoto);
+      });
+    </script>
+  </body>
+</html>
