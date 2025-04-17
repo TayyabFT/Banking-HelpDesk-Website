@@ -375,7 +375,7 @@
                 <th>Email</th>
                 <th>Priority</th>
                 <th>Branch Code</th>
-                <th>User Code</th>
+                <th>Control Room</th>
                 <th>Subject</th>
                 <th>Message</th>
                 <th>Attachment</th>
@@ -608,7 +608,14 @@
   )}>read more</a>
 </td>
 
-                        <td>${attachmentLink}</td>
+                        <td>
+                  ${
+                    ticket.attachment1
+                      ? `<a href="${ticket.attachment1}" target="_blank" class="attachment-link">View Attachment</a>`
+                      : "None"
+                  }
+                </td>
+                <td>
                         <td>${formattedDate}</td>
                         <td>${ticket.status || "Under Working"}</td>
                     </tr>
@@ -694,7 +701,7 @@
           Email: ticket.email,
           Priority: ticket.priority,
           "Branch Code": ticket.branchcode,
-          "User Code": ticket.user_code,
+          "Control Room": ticket.user_code,
           Subject: ticket.subject,
           Message: ticket.message,
           Attachment: ticket.attachment1 || "None",
