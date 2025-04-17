@@ -237,6 +237,8 @@
       }
 
       .modal-content {
+        margin: 15% auto;
+        padding: 20px;
         background: var(--card-bg);
         border: 2px solid var(--primary);
         border-radius: 15px;
@@ -333,6 +335,12 @@
             class="search-input"
             placeholder="Search by ID or Email"
           />
+          <input
+            type="text"
+            id="branchCodeInput"
+            class="search-input"
+            placeholder="Enter Branch Code"
+          />
           <select id="priorityFilter" class="filter-select">
             <option value="">All Priorities</option>
             <option value="low">Low</option>
@@ -354,6 +362,7 @@
           <button class="btn btn-custom" onclick="downloadExcel()">
             Download Excel
           </button>
+          <button class="btn btn-custom" id="searchBranchBtn">Search</button>
         </div>
         <div class="table-responsive">
           <table class="table">
@@ -379,6 +388,7 @@
         </div>
       </div>
     </div>
+    <div id="fullmessage" class="modal"></div>
 
     <div
       class="modal fade"
@@ -487,6 +497,27 @@
             );
           },
         });
+        $("#searchBranchBtn").click(function () {
+          const branchCode = $("#branchCodeInput").val().trim();
+          if (!branchCode) {
+            alert("Please enter a branch code.");
+            return;
+          }
+
+          $.ajax({
+            url: `https://banking-desk.vercel.app/api/searchbybranchcode/${branchCode}`,
+            method: "GET",
+            success: function (tickets) {
+              renderTickets(tickets); // Render tickets with the filtered branch code
+            },
+            error: function (xhr) {
+              alert(
+                "Error fetching tickets for branch code: " +
+                  (xhr.responseJSON?.error || "Unknown error")
+              );
+            },
+          });
+        });
       }
 
       function populateIssueTypeFilter(tickets) {
@@ -501,6 +532,27 @@
           issueTypeFilter.append(`<option value="${type}">${type}</option>`);
         });
       }
+      // Function to show the message modal
+      function showMessageModal(message) {
+        const modalContent = `
+    <div class="modal-content">
+      <span class="close-button" id="closeMessageModal">&times;</span>
+      <p>${message}</p>
+    </div>
+  `;
+        $("#fullmessage").html(modalContent).fadeIn(); // Show the modal
+      }
+
+      function closeMessageModal() {
+        $("#fullmessage").fadeOut(); // Hide the modal
+      }
+      // Handle "read more" link clicks
+      // Handle modal close button
+      $(document)
+        .off("click", "#closeMessageModal")
+        .on("click", "#closeMessageModal", function () {
+          closeMessageModal();
+        });
 
       function renderTickets(tickets) {
         const tbody = $("#ticketTableBody");
@@ -535,6 +587,7 @@
                 hour12: true,
               })
             : "N/A";
+          msg = ticket.message.split(" ").slice(0, 4).join(" ");
           tbody.append(`
                     <tr data-ticket-id="${ticket.id}" data-email="${
             ticket.email
@@ -548,14 +601,26 @@
                         <td>${ticket.branchcode}</td>
                         <td>${ticket.user_code}</td>
                         <td>${ticket.subject}</td>
-                        <td>${ticket.message}</td>
+                        <td>
+  ${msg}...
+  <a href="#" class="read-more" data-message=${JSON.stringify(
+    ticket.message
+  )}>read more</a>
+</td>
+
                         <td>${attachmentLink}</td>
                         <td>${formattedDate}</td>
                         <td>${ticket.status || "Under Working"}</td>
                     </tr>
                 `);
         });
-
+        $(document)
+          .off("click", ".read-more")
+          .on("click", ".read-more", function (e) {
+            e.preventDefault();
+            const message = $(this).data("message");
+            showMessageModal(message);
+          });
         $("tr[data-ticket-id]")
           .off("click")
           .on("click", function (e) {
