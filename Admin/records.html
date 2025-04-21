@@ -605,7 +605,7 @@
 
       function loadRecords() {
         $.ajax({
-          url: "https://banking-desk.vercel.app/api/records",
+          url: "https://help-desk-rose.vercel.app/api/records",
           method: "GET",
           success: function (data) {
             console.log("Records loaded:", data);
@@ -670,7 +670,7 @@
           )
         ) {
           $.ajax({
-            url: `https://banking-desk.vercel.app/api/${role}/${encodeURIComponent(
+            url: `https://help-desk-rose.vercel.app/api/${role}/${encodeURIComponent(
               email
             )}`,
             method: "DELETE",

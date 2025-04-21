@@ -816,7 +816,7 @@
 
       function loadDashboard() {
         $.ajax({
-          url: "https://banking-desk.vercel.app/api/tickets",
+          url: "https://help-desk-rose.vercel.app/api/tickets",
           method: "GET",
           success: function (tickets) {
             allTickets = tickets;
@@ -990,8 +990,8 @@
         window.changeTicketStatus = function (ticketId, action) {
           const url =
             action === "resolve"
-              ? `https://banking-desk.vercel.app/api/tickets/${ticketId}/resolve`
-              : `https://banking-desk.vercel.app/api/tickets/${ticketId}/close`;
+              ? `https://help-desk-rose.vercel.app/api/tickets/${ticketId}/resolve`
+              : `https://help-desk-rose.vercel.app/api/tickets/${ticketId}/close`;
 
           const confirmationMessage =
             action === "resolve"
@@ -1127,7 +1127,7 @@
           }
 
           $.ajax({
-            url: `https://banking-desk.vercel.app/api/searchbybranchcode/${branchCode}`,
+            url: `https://help-desk-rose.vercel.app/api/searchbybranchcode/${branchCode}`,
             method: "GET",
             success: function (tickets) {
               renderTickets(tickets); // Render tickets with the filtered branch code
@@ -1144,7 +1144,7 @@
       function deleteTicket(id) {
         if (confirm("Are you sure you want to delete this ticket?")) {
           $.ajax({
-            url: `https://banking-desk.vercel.app/api/tickets/${id}`,
+            url: `https://help-desk-rose.vercel.app/api/tickets/${id}`,
             type: "DELETE",
             success: function (response) {
               alert(response.message);
@@ -1241,7 +1241,7 @@
       function deleteAllTickets() {
         if (confirm("Are you sure you want to delete all tickets?")) {
           $.ajax({
-            url: "https://banking-desk.vercel.app/api/tickets",
+            url: "https://help-desk-rose.vercel.app/api/tickets",
             type: "DELETE",
             success: function (response) {
               alert(response.message);
@@ -1330,7 +1330,7 @@
         }
 
         $.ajax({
-          url: "https://banking-desk.vercel.app/api/send-announcement",
+          url: "https://help-desk-rose.vercel.app/api/send-announcement",
           type: "POST",
           contentType: "application/json",
           data: JSON.stringify({ emails: selectedEmails, subject, message }),

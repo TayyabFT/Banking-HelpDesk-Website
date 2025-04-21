@@ -469,7 +469,7 @@
 
       function loadDashboard() {
         $.ajax({
-          url: "https://banking-desk.vercel.app/api/tickets",
+          url: "https://help-desk-rose.vercel.app/api/tickets",
           method: "GET",
           success: function (tickets) {
             allTickets = tickets;
@@ -492,7 +492,7 @@
           }
 
           $.ajax({
-            url: `https://banking-desk.vercel.app/api/searchbybranchcode/${branchCode}`,
+            url: `https://help-desk-rose.vercel.app/api/searchbybranchcode/${branchCode}`,
             method: "GET",
             success: function (tickets) {
               renderTickets(tickets); // Render tickets with the filtered branch code
@@ -559,7 +559,7 @@
           msg = ticket.message.split(" ").slice(0, 4).join(" ");
 
           const attachmentLink = ticket.attachment1
-            ? `<a href="https://banking-desk.vercel.app/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>`
+            ? `<a href="https://help-desk-rose.vercel.app/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>`
             : "None";
           tbody.append(`
                           <tr data-ticket-id="${ticket.id}" data-email="${
@@ -687,7 +687,7 @@
         }
 
         $.ajax({
-          url: "https://banking-desk.vercel.app/api/send-announcement",
+          url: "https://help-desk-rose.vercel.app/api/send-announcement",
           type: "POST",
           contentType: "application/json",
           data: JSON.stringify({ emails: selectedEmails, subject, message }),

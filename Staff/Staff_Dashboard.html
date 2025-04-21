@@ -482,7 +482,7 @@
 
       function loadDashboard() {
         $.ajax({
-          url: "https://banking-desk.vercel.app/api/tickets",
+          url: "https://help-desk-rose.vercel.app/api/tickets",
           method: "GET",
           success: function (tickets) {
             allTickets = tickets;
@@ -505,7 +505,7 @@
           }
 
           $.ajax({
-            url: `https://banking-desk.vercel.app/api/searchbybranchcode/${branchCode}`,
+            url: `https://help-desk-rose.vercel.app/api/searchbybranchcode/${branchCode}`,
             method: "GET",
             success: function (tickets) {
               renderTickets(tickets); // Render tickets with the filtered branch code
@@ -570,7 +570,7 @@
           const isResolved =
             ticket.status === "Request Resolved" ? "resolved-row" : "";
           const attachmentLink = ticket.attachment1
-            ? `<a href="https://banking-desk.vercel.app/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>`
+            ? `<a href="https://help-desk-rose.vercel.app/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>`
             : "None";
           const actionButton =
             ticket.status === "Request Resolved"
@@ -650,7 +650,7 @@
         }
         if (confirm("Are you sure you want to resolve this ticket?")) {
           $.ajax({
-            url: `https://banking-desk.vercel.app/api/tickets/${id}/resolve`,
+            url: `https://help-desk-rose.vercel.app/api/tickets/${id}/resolve`,
             method: "PUT",
             contentType: "application/json",
             success: function (response) {
@@ -740,7 +740,7 @@
         }
 
         $.ajax({
-          url: "https://banking-desk.vercel.app/api/send-announcement",
+          url: "https://help-desk-rose.vercel.app/api/send-announcement",
           type: "POST",
           contentType: "application/json",
           data: JSON.stringify({ emails: selectedEmails, subject, message }),
