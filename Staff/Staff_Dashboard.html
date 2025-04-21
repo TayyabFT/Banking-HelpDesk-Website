@@ -348,7 +348,7 @@
             <option value="high">High</option>
           </select>
           <select id="issueTypeFilter" class="filter-select">
-            <option value="">All Issue Types</option>
+            <option value="">Control Room</option>
           </select>
           <select id="statusFilter" class="filter-select">
             <option value="">All Statuses</option>
@@ -527,7 +527,7 @@
         ].sort();
         issueTypeFilter
           .empty()
-          .append('<option value="">All Issue Types</option>');
+          .append('<option value="">Control Room</option>');
         issueTypes.forEach((type) => {
           issueTypeFilter.append(`<option value="${type}">${type}</option>`);
         });

@@ -398,7 +398,7 @@
       .modal {
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
-        z-index: 1000; /* Sit on top */
+        z-index: 1052; /* Ensure it's above the backdrop */
         left: 0;
         top: 0;
         width: 100%; /* Full width */
@@ -647,7 +647,7 @@
             <option value="high">High</option>
           </select>
           <select id="issueTypeFilter" class="filter-select">
-            <option value="">All Issue Types</option>
+            <option value="">Control Room</option>
           </select>
           <select id="statusFilter" class="filter-select">
             <option value="">All Statuses</option>
@@ -749,6 +749,22 @@
                 aria-labelledby="messageModalLabel"
                 aria-hidden="true"
               ></div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  id="sendAnnouncementBtn"
+                >
+                  Send
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -965,7 +981,7 @@
           ].sort();
           issueTypeFilter
             .empty()
-            .append('<option value="">All Issue Types</option>');
+            .append('<option value="">Control Room</option>');
           issueTypes.forEach((type) => {
             issueTypeFilter.append(`<option value="${type}">${type}</option>`);
           });
@@ -1000,80 +1016,6 @@
           }
         };
 
-        function renderTickets(tickets) {
-          const tbody = $("#ticketTableBody");
-          tbody.empty(); // Clear the existing table body
-
-          tickets.forEach((ticket) => {
-            const priorityClass =
-              ticket.status === "Request Resolved"
-                ? "resolved-row"
-                : {
-                    high: "high-priority-row",
-                    medium: "medium-priority-row",
-                    low: "low-priority-row",
-                  }[ticket.priority.toLowerCase()] || "";
-            const msg = ticket.message.split(" ").slice(0, 4).join(" ");
-            tbody.append(`
-            <tr data-ticket-id="${ticket.ticket_id}" data-email="${
-              ticket.email
-            }" class="${priorityClass}">
-                <td>${ticket.id}</td>
-                <td>${ticket.issue_type}</td>
-                <td>${ticket.name}</td>
-                <td>${ticket.email}</td>
-                <td>${ticket.priority}</td>
-                <td>${ticket.branchcode}</td>
-                <td>${ticket.user_code}</td>
-                <td>${ticket.subject}</td>
-                <td>${msg}... <a href="#" class="read-more" data-message=${JSON.stringify(
-              ticket.message
-            )}>read more</a></td>
-                <td>${ticket.attachment1 || "None"}</td>
-                <td>${
-                  ticket.datetime
-                    ? new Date(ticket.datetime).toLocaleString("en-US")
-                    : "Invalid Date"
-                }</td>
-                <td>${ticket.status || "Under Working"}</td>
-                <td>
-                    <button class="btn btn-danger btn-sm" onclick="deleteTicket(${
-                      ticket.id
-                    })">Delete</button>
-                    ${
-                      ticket.status === "Under Working"
-                        ? `<button class="btn btn-success btn-sm" onclick="changeTicketStatus(${ticket.id}, 'resolve')">Done</button>`
-                        : ticket.status === "Request Resolved"
-                        ? `<button class="btn btn-warning btn-sm" onclick="changeTicketStatus(${ticket.id}, 'close')">Undone</button>`
-                        : ""
-                    }
-                </td>
-            </tr>
-        `);
-          });
-
-          // Existing code for read more functionality
-          $(document)
-            .off("click", ".read-more")
-            .on("click", ".read-more", function (e) {
-              e.preventDefault();
-              const message = $(this).data("message");
-              showMessageModal(message);
-            });
-
-          $("tr[data-ticket-id]")
-            .off("click")
-            .on("click", function (e) {
-              if ($(e.target).is("button") || $(e.target).is("a")) return; // Don't toggle selection on button or link click
-              $(this).toggleClass("selected-row"); // Toggle the selected state
-              const email = $(this).data("email");
-              if ($(this).hasClass("selected-row")) {
-                if (!selectedEmails.includes(email)) selectedEmails.push(email); // Add email to selected if not already included
-              } else {
-                selectedEmails = selectedEmails.filter((e) => e !== email); // Remove email from selected if deselected
-              }
-            });
-        }
         // Function to show the message modal
         function showMessageModal(message) {
           const modalContent = `
@@ -1221,6 +1163,80 @@
           });
         }
       }
+      function renderTickets(tickets) {
+        const tbody = $("#ticketTableBody");
+        tbody.empty(); // Clear the existing table body
+
+        tickets.forEach((ticket) => {
+          const priorityClass =
+            ticket.status === "Request Resolved"
+              ? "resolved-row"
+              : {
+                  high: "high-priority-row",
+                  medium: "medium-priority-row",
+                  low: "low-priority-row",
+                }[ticket.priority.toLowerCase()] || "";
+          const msg = ticket.message.split(" ").slice(0, 4).join(" ");
+          tbody.append(`
+            <tr data-ticket-id="${ticket.ticket_id}" data-email="${
+            ticket.email
+          }" class="${priorityClass}">
+                <td>${ticket.id}</td>
+                <td>${ticket.issue_type}</td>
+                <td>${ticket.name}</td>
+                <td>${ticket.email}</td>
+                <td>${ticket.priority}</td>
+                <td>${ticket.branchcode}</td>
+                <td>${ticket.user_code}</td>
+                <td>${ticket.subject}</td>
+                <td>${msg}... <a href="#" class="read-more" data-message=${JSON.stringify(
+            ticket.message
+          )}>read more</a></td>
+                <td>${ticket.attachment1 || "None"}</td>
+                <td>${
+                  ticket.datetime
+                    ? new Date(ticket.datetime).toLocaleString("en-US")
+                    : "Invalid Date"
+                }</td>
+                <td>${ticket.status || "Under Working"}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteTicket(${
+                      ticket.id
+                    })">Delete</button>
+                    ${
+                      ticket.status === "Under Working"
+                        ? `<button class="btn btn-success btn-sm" onclick="changeTicketStatus(${ticket.id}, 'resolve')">Done</button>`
+                        : ticket.status === "Request Resolved"
+                        ? `<button class="btn btn-warning btn-sm" onclick="changeTicketStatus(${ticket.id}, 'close')">Undone</button>`
+                        : ""
+                    }
+                </td>
+            </tr>
+        `);
+        });
+
+        // Existing code for read more functionality
+        $(document)
+          .off("click", ".read-more")
+          .on("click", ".read-more", function (e) {
+            e.preventDefault();
+            const message = $(this).data("message");
+            showMessageModal(message);
+          });
+
+        $("tr[data-ticket-id]")
+          .off("click")
+          .on("click", function (e) {
+            if ($(e.target).is("button") || $(e.target).is("a")) return; // Don't toggle selection on button or link click
+            $(this).toggleClass("selected-row"); // Toggle the selected state
+            const email = $(this).data("email");
+            if ($(this).hasClass("selected-row")) {
+              if (!selectedEmails.includes(email)) selectedEmails.push(email); // Add email to selected if not already included
+            } else {
+              selectedEmails = selectedEmails.filter((e) => e !== email); // Remove email from selected if deselected
+            }
+          });
+      }
 
       function deleteAllTickets() {
         if (confirm("Are you sure you want to delete all tickets?")) {
@@ -1249,10 +1265,17 @@
         const priorityFilter = $("#priorityFilter").val().toLowerCase();
         const issueTypeFilter = $("#issueTypeFilter").val();
         const statusFilter = $("#statusFilter").val();
+        // Log applied filters to the console
+        console.log("Filters applied:");
+        if (searchTerm) console.log(`Search Term: ${searchTerm}`);
+        if (priorityFilter) console.log(`Priority Filter: ${priorityFilter}`);
+        if (issueTypeFilter)
+          console.log(`Issue Type Filter: ${issueTypeFilter}`);
+        if (statusFilter) console.log(`Status Filter: ${statusFilter}`);
 
         const filteredTickets = allTickets.filter((ticket) => {
           const matchesSearch =
-            ticket.ticket_id.toString().includes(searchTerm) ||
+            ticket.id.toString().includes(searchTerm) ||
             ticket.email.toLowerCase().includes(searchTerm);
           const matchesPriority =
             !priorityFilter || ticket.priority.toLowerCase() === priorityFilter;
@@ -1336,7 +1359,6 @@
       }
 
       $(document).ready(function () {
-        $("#sidebarToggleBtn").click(toggleSidebar);
         loadDashboard();
 
         $(".notification").click(function () {
@@ -1360,12 +1382,12 @@
 
         $("#sendAnnouncementBtn").click(sendAnnouncement);
 
-        const adminName = localStorage.getItem("adminName") || "Admin";
-        const adminPhoto =
-          localStorage.getItem("adminPhoto") ||
+        const bankerName = localStorage.getItem("bankerName") || "Banker";
+        const bankerPhoto =
+          localStorage.getItem("bankerPhoto") ||
           "http://localhost:3000/uploads/default.png";
-        $("#profileName").text(adminName);
-        $("#profilePhoto").attr("src", adminPhoto);
+        $("#profileName").text(bankerName);
+        $("#profilePhoto").attr("src", bankerPhoto);
       });
     </script>
   </body>

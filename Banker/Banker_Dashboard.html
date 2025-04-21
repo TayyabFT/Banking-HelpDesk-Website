@@ -354,7 +354,7 @@
             <option value="high">High</option>
           </select>
           <select id="issueTypeFilter" class="filter-select">
-            <option value="">All Issue Types</option>
+            <option value="">Control Room</option>
           </select>
           <select id="statusFilter" class="filter-select">
             <option value="">All Statuses</option>
@@ -514,7 +514,7 @@
         ].sort();
         issueTypeFilter
           .empty()
-          .append('<option value="">All Issue Types</option>');
+          .append('<option value="">Control Room</option>');
         issueTypes.forEach((type) => {
           issueTypeFilter.append(`<option value="${type}">${type}</option>`);
         });
@@ -522,11 +522,11 @@
       // Function to show the message modal
       function showMessageModal(message) {
         const modalContent = `
-    <div class="modal-content">
-      <span class="close-button" id="closeMessageModal">&times;</span>
-      <p>${message}</p>
-    </div>
-  `;
+          <div class="modal-content">
+            <span class="close-button" id="closeMessageModal">&times;</span>
+            <p>${message}</p>
+          </div>
+        `;
         $("#fullmessage").html(modalContent).fadeIn(); // Show the modal
       }
 
@@ -562,36 +562,38 @@
             ? `<a href="https://banking-desk.vercel.app/uploads/${ticket.attachment1}" class="attachment-link" target="_blank">${ticket.attachment1}</a>`
             : "None";
           tbody.append(`
-                    <tr data-ticket-id="${ticket.id}" data-email="${
+                          <tr data-ticket-id="${ticket.id}" data-email="${
             ticket.email
           }" class="${priorityClass} ${isSelected}">
-                        <td>${ticket.id}</td>
-                        <td>${ticket.issue_type}</td>
-                        <td>${ticket.name}</td>
-                        <td>${ticket.email}</td>
-                        <td>${ticket.priority}</td>
-                        <td>${ticket.branchcode}</td>
-                        <td>${ticket.user_code}</td>
-                        <td>${ticket.subject}</td>
-                       <td>
-  ${msg}...
-  <a href="#" class="read-more" data-message=${JSON.stringify(
-    ticket.message
-  )}>read more</a>
-</td>
+                              <td>${ticket.id}</td>
+                              <td>${ticket.issue_type}</td>
+                              <td>${ticket.name}</td>
+                              <td>${ticket.email}</td>
+                              <td>${ticket.priority}</td>
+                              <td>${ticket.branchcode}</td>
+                              <td>${ticket.user_code}</td>
+                              <td>${ticket.subject}</td>
+                             <td>
+        ${msg}...
+        <a href="#" class="read-more" data-message=${JSON.stringify(
+          ticket.message
+        )}>read more</a>
+      </td>
 
-                        <td>
-                  ${
-                    ticket.attachment1
-                      ? `<a href="${ticket.attachment1}" target="_blank" class="attachment-link">View Attachment</a>`
-                      : "None"
-                  }
-                </td>
-                <td>
-                        <td>${new Date(ticket.datetime).toLocaleString()}</td>
-                        <td>${ticket.status || "Under Working"}</td>
-                    </tr>
-                `);
+                              <td>
+                        ${
+                          ticket.attachment1
+                            ? `<a href="${ticket.attachment1}" target="_blank" class="attachment-link">View Attachment</a>`
+                            : "None"
+                        }
+                      </td>
+                      <td>
+                              <td>${new Date(
+                                ticket.datetime
+                              ).toLocaleString()}</td>
+                              <td>${ticket.status || "Under Working"}</td>
+                          </tr>
+                      `);
         });
         $(document)
           .off("click", ".read-more")
@@ -619,6 +621,13 @@
         const priorityFilter = $("#priorityFilter").val().toLowerCase();
         const issueTypeFilter = $("#issueTypeFilter").val();
         const statusFilter = $("#statusFilter").val();
+        // Log applied filters to the console
+        console.log("Filters applied:");
+        if (searchTerm) console.log(`Search Term: ${searchTerm}`);
+        if (priorityFilter) console.log(`Priority Filter: ${priorityFilter}`);
+        if (issueTypeFilter)
+          console.log(`Issue Type Filter: ${issueTypeFilter}`);
+        if (statusFilter) console.log(`Status Filter: ${statusFilter}`);
 
         const filteredTickets = allTickets.filter((ticket) => {
           const matchesSearch =
@@ -665,7 +674,8 @@
           alert("Please select at least one ticket.");
           return;
         }
-        $("#announcementModal").modal("show");
+        alert("Send us email at tayyab56jb@gmail.com.");
+        window.location.href = "https://mail.google.com";
       }
 
       function sendAnnouncement() {
